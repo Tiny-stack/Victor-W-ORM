@@ -8,15 +8,15 @@ require many of them services.
 
 ## Features
 - Fully functioning CRUD in ORM Style
-- Get ride of writing sql queries
-- Automatic feild creation based on the models
+- Get rid of writing sql queries
+- Automatic table and field creation based on the models
 - Support of nested models
 - Easy to configure and use, no Over head
 
-## how to use victo-W-ORM in your project
-- Victor-W-ORM is very easy to use in your project, that requires almost no configuration. Download the .jar and set it to your project build path.
+## how to use victor-W-ORM in your project
+- Victor-W-ORM is very easy to use in your project, it requires almost no configuration. Download the .jar and set it to your project build path.
 - By default Victor-W-ORM creates a db named 'default.db' however user can explicitly call the static method ->changeDB(dbname) of CRUD class to change the db name(make sure your db contains the extension .db).
-- If the db is not valid it will not throw any exception however method will return false and db name will default.db.
+- If the db name is not valid it will not throw any exception however method will return false and db name will be default.db.
 
 ### Creating models
 - To create models you must extend the Model class which is an abstract class make sure to override the abstract method
