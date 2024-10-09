@@ -6,6 +6,7 @@ require many of them services.
 - W-ORM aims to find a  solution for this problem to provide ORM functionality in extremely low configuration.
 - Initially my design handles all the CRUD operation (Including nested model support) with just 2 Java classes. (CRUD->Generic java class and Model-> abstract Java Class)
 
+![alt text](https://raw.githubusercontent.com/Tiny-stack/Victor-W-ORM/refs/heads/main/logo.jpeg)
 ## Features
 - Fully functioning CRUD in ORM Style
 - Get rid of writing sql queries
