@@ -32,6 +32,11 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+tasks.jar {
+    // Set the name of the jar file
+    archiveFileName.set("${rootProject.name}-.jar")
+}
+
 
 application {
     // Define the main class for the application.

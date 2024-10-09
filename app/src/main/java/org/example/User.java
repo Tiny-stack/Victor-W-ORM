@@ -3,8 +3,9 @@
  */
 package org.example;
 import java.sql.SQLException;
-import org.victorworm.CRUD;
-import org.victorworm.Model;
+
+import org.worm.CRUD;
+import org.worm.Model;
 public class User extends Model
 {
 	// private Long id;

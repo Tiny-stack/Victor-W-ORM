@@ -1,4 +1,4 @@
-package org.victorworm;
+package org.worm;
 
 
 public abstract class Model

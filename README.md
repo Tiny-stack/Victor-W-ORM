@@ -1,9 +1,9 @@
-# Victor-W-ORM
+# W-ORM
 ## about
-- Victo-W-ORM is aims to create an extremelely lightweight ORM for sqlite db that aims to support native OS application.
+- W-ORM is aims to create an extremelely lightweight ORM for sqlite db that aims to support native OS application.
 - Usually available ORM library are heavy and has many feature that reuires in web based application while native OS application don't 
 require many of them services.
-- Victor-W-ORM aims to find a  solution for this problem to provide ORM functionality in extremely low configuration.
+- W-ORM aims to find a  solution for this problem to provide ORM functionality in extremely low configuration.
 - Initially my design handles all the CRUD operation (Including nested model support) with just 2 Java classes. (CRUD->Generic java class and Model-> abstract Java Class)
 
 ## Features
@@ -13,9 +13,9 @@ require many of them services.
 - Support of nested models
 - Easy to configure and use, no Over head
 
-## how to use victor-W-ORM in your project
-- Victor-W-ORM is very easy to use in your project, it requires almost no configuration. Download the .jar and set it to your project build path.
-- By default Victor-W-ORM creates a db named 'default.db' however user can explicitly call the static method ->changeDB(dbname) of CRUD class to change the db name(make sure your db contains the extension .db).
+## how to use W-ORM in your project
+- W-ORM is very easy to use in your project, it requires almost no configuration. Download the .jar and set it to your project build path.
+- By default W-ORM creates a db named 'default.db' however user can explicitly call the static method ->changeDB(dbname) of CRUD class to change the db name(make sure your db contains the extension .db).
 - If the db name is not valid it will not throw any exception however method will return false and db name will be default.db.
 
 ### Creating models
@@ -23,6 +23,10 @@ require many of them services.
     - getId()
     - getTableName()
 - Create getter setter for each field
+- make sure to follow the proper naming conventionf for getter and setter: from eg:
+	- id:-> getId() and setId()
+	- name:-> getName() and setName()
+	- cityName->getCityName() and setCityName()
 - the method getTableName must return the table Name of the model. (Note; you don't have to create the table manually, it will be automatically created (lazily))
 
 
@@ -30,8 +34,8 @@ require many of them services.
 
 ```
 import java.sql.SQLException;
-import org.victorworm.CRUD;
-import org.victorworm.Model;
+import org.worm.CRUD;
+import org.worm.Model;
 public class User extends Model
 {
 	private Integer id;
