@@ -1,7 +1,7 @@
 # W-ORM
 ## about
-- W-ORM is aims to create an extremelely lightweight ORM for sqlite db that aims to support native OS application.
-- Usually available ORM library are heavy and has many feature that reuires in web based application while native OS application don't 
+- W-ORM  aims to create an extremelely lightweight ORM for sqlite db that aims to support native OS application.
+- Usually available ORM library are heavy and has many feature that requires in web based application while native OS application don't 
 require many of them services.
 - W-ORM aims to find a  solution for this problem to provide ORM functionality in extremely low configuration.
 - Initially my design handles all the CRUD operation (Including nested model support) with just 2 Java classes. (CRUD->Generic java class and Model-> abstract Java Class)
@@ -11,7 +11,7 @@ require many of them services.
 - Fully functioning CRUD in ORM Style
 - Get rid of writing sql queries
 - Automatic table and field creation based on the models
-- Support of nested models
+- Support of nested models, for foreign key handling
 - Easy to configure and use, no Over head
 
 ## how to use W-ORM in your project
