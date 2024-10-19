@@ -32,14 +32,10 @@ public class CRUD<E extends Model> {
     private static final Logger logger = Logger.getLogger(CRUD.class.getName());
      private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-]+\\.db$");
 	private Connection connection;
-//	private E e;
 	 private Class<E> clazz;
 	private String tableName;
-    public static boolean changeDB(String dbName)
-    {
-         // Check if the name is null or empty
+    public static boolean changeDB(String dbName){
          if (dbName == null || dbName.isEmpty() || dbName.length()>255 || !VALID_NAME_PATTERN.matcher(dbName).matches()) {
-            // throw new SQLException("Wrong DB Name: ")
             logger.info("Invalid db Name found: Unable to overwrite dbname from default to "+dbName);
             return false;
         }
@@ -60,8 +56,6 @@ public class CRUD<E extends Model> {
             // Use the table name from the model
             this.tableName = table;
 
-            // Check if the table exists
-            // this.connection = DriverManager.getConnection(CRUD.DB_URL);
             if (!doesTableExist(tableName)) {
                     boolean created = createTable();
                     if(!created)
@@ -75,8 +69,7 @@ public class CRUD<E extends Model> {
             throw new RuntimeException("Error initializing CRUD", e);
         }
     }
-	private static String getterMethod(String field)
-    {
+	private static String getterMethod(String field){
         if(field.equals(""))
             return "";
         char ch = field.charAt(0);
@@ -88,8 +81,7 @@ public class CRUD<E extends Model> {
         return "get"+ch+field;
 
     }
-    private static String setterMethod(String field)
-    {
+    private static String setterMethod(String field){
         if(field.equals(""))
             return "";
         char ch = field.charAt(0);
@@ -100,8 +92,7 @@ public class CRUD<E extends Model> {
         }
         return "set"+ch+field;    
     }
-	private Integer create(E object) throws SQLException,IllegalAccessException,NoSuchMethodException,InvocationTargetException
-	{
+	private Integer create(E object) throws SQLException,IllegalAccessException,NoSuchMethodException,InvocationTargetException{
        
 		Class<?> clazz = object.getClass();
         Field[] fields = clazz.getDeclaredFields();
@@ -209,14 +200,23 @@ public class CRUD<E extends Model> {
         
 		return object.getId();
 	}
-
+    /**
+     * Saves the specified model to the database.
+     * <p>
+     * This method will create a new record if the model does not already exist (i.e., if the model's ID is null or less than or equal to zero). 
+     * If the model already exists, it will update the existing record.
+     * </p>
+     *
+     * @param model the model to save or update; must not be null and should match the associated table name
+     * @return the ID of the saved or updated model; returns 0 if the operation fails
+     */
 	public Integer save(Model model)
 	{
         
         
          try
          {
-            this.connection = DriverManager.getConnection(CRUD.DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
             @SuppressWarnings("unchecked")
             E object = (E)(model);
             if(!this.tableName.equals(model.getTableName()))
@@ -247,17 +247,6 @@ public class CRUD<E extends Model> {
         catch(SQLException se)
         {
             logger.info("SQLexception: "+se);
-        }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-            }
-            catch(SQLException sq)
-            {
-                logger.info("UNable to close the connection in save method");
-            }
         }
         return 0;
 	}
@@ -300,22 +289,31 @@ public class CRUD<E extends Model> {
                             setter.invoke(instance, columnValue); // Invoke the setter method
                         }
                     } catch (NoSuchMethodException e) {
-                        // Handle case where setter method does not exist, if necessary
                         logger.info("No setter found for " + columnName);
                     }
                     
                 }
 
-                response.add(instance); // Add the created instance to the response list
+                response.add(instance); 
             }
 
             return response;
         }
+    /**
+     * Retrieves a model object from the database based on the given ID.
+     * <p>
+     * This method executes a SQL query to find a record in the database that matches the specified ID.
+     * If a record is found, it converts the result set to the appropriate model object and returns it.
+     * </p>
+     *
+     * @param id the ID of the model to retrieve; must not be null
+     * @return the model object associated with the given ID, or null if no record is found or an error occurs
+     */
 	public E findById(Integer id)
 	{
         try
         {
-            this.connection = DriverManager.getConnection(CRUD.DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
         
 		    String sql = "SELECT * FROM " + this.tableName + " WHERE id = ?";
 	        PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -326,27 +324,22 @@ public class CRUD<E extends Model> {
         catch (Exception e) {
 	        e.printStackTrace();
 	    }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-            }
-            catch(SQLException e)
-            {
-                logger.info("Unable to close the connection: in method findById");
-            }
-        }
-	    return null; // Return null if not found
+	    return null; 
 	}
-
+    /**
+     * Retrieves all model objects from the database.
+     * <p>
+     * This method executes a SQL query to select all records from the corresponding table in the database.
+     * It converts the resulting result set into a list of model objects and returns that list.
+     * </p>
+     *
+     * @return a list of all model objects in the table; returns null if an error occurs during the retrieval
+     */
 	public List<E> findAll()
 	{
         try
         {   
-            this.connection = DriverManager.getConnection(CRUD.DB_URL);
-
-            this.connection = DriverManager.getConnection(CRUD.DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
 		    String sql = "SELECT * FROM " + this.tableName;
 	        PreparedStatement preparedStatement = connection.prepareStatement(sql);
 	        ResultSet resultSet = preparedStatement.executeQuery();
@@ -356,24 +349,24 @@ public class CRUD<E extends Model> {
         {
 	        e.printStackTrace();
 	    }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-            }
-            catch(SQLException sq)
-            {
-                logger.info("Connection could not be closed in: findAll method");
-            }
-        }
 	    return null; // Return null if not found
 	}
+    /**
+     * Retrieves model objects from the database based on a specified column and its value.
+     * <p>
+     * This method executes a SQL query to select all records from the corresponding table where the specified
+     * column matches the provided value. It converts the resulting result set into a list of model objects and returns that list.
+     * </p>
+     *
+     * @param columnName the name of the column to filter the results by; must not be null or empty
+     * @param value the value to match in the specified column; can be of any object type
+     * @return a list of model objects matching the specified column value; returns null if an error occurs during the retrieval
+     */
 	public List<E> findByColumn(String columnName,Object value)
 	{
         try
 		{    
-            this.connection = DriverManager.getConnection(CRUD.DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
             String sql = "SELECT * FROM " + this.tableName+" WHERE "+columnName+" = ?";
 	        PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setObject(1, value);
@@ -384,24 +377,24 @@ public class CRUD<E extends Model> {
         {
 	        logger.info("Exception in findByCOlumn: "+e);
 	    }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-            }
-            catch(SQLException sq)
-            {
-                logger.info("Connection could not be closed in: findBycolumns method");
-            }
-        }
 	    return null; // Return null if not found
 	}
+    /**
+     * Retrieves a paginated list of model objects from the database.
+     * <p>
+     * This method executes a SQL query to select all records from the corresponding table, applying pagination
+     * based on the specified limit and offset. The results are converted from the resulting result set into a list of model objects.
+     * </p>
+     *
+     * @param limit the maximum number of records to retrieve; must be a positive integer
+     * @param offset the number of records to skip before starting to collect the result set; must be a non-negative integer
+     * @return a list of model objects retrieved from the database; returns null if an error occurs during the retrieval
+     */
 	public List<E> findAll(Integer limit,Integer offset)
 	{
         try
         {
-                this.connection = DriverManager.getConnection(CRUD.DB_URL);
+                this.connection = SQLITEConnection.getConnection(DB_URL);
                 String sql = "SELECT * FROM " + this.tableName+" LIMIT "+limit+" OFFSET "+offset;
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -410,26 +403,25 @@ public class CRUD<E extends Model> {
         catch (Exception e) {
 	        logger.info("FInALL des not executed properly: "+e);
 	    }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-            }
-            catch(SQLException sq)
-            {
-                logger.info("Connection could not be closed in: findall  method");
-            }
-        }
 	    return null; // Return null if not found
 	}
-	public boolean delete(Integer id) throws SQLException
+    /**
+     * Deletes a record from the database based on the specified ID.
+     * <p>
+     * This method executes a SQL DELETE statement to remove the record that matches the given ID
+     * from the corresponding table. It checks that the operation is valid by ensuring that the 
+     * CRUD instance is associated with the correct model. The method returns a boolean indicating 
+     * whether the deletion was successful.
+     * </p>
+     *
+     * @param id the ID of the record to be deleted; must be a positive integer
+     * @return true if the record was successfully deleted; false otherwise
+     */
+	public boolean delete(Integer id)
     {
-        if(!this.tableName.equals(this.tableName))
-			throw new SQLException("CRUD BELONGS to another model"); // the chance of this happen is exremely low but we must check, may be after proper testing I will remove this check
 		 try
          {
-            this.connection = DriverManager.getConnection(DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
             String sql = "DELETE FROM " +this.tableName + " WHERE id = "+id;
 		    
 		     PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -440,25 +432,25 @@ public class CRUD<E extends Model> {
 		        logger.info("SQL error in delete: "+ex);
 		        return false; // returns false if the delete operation failed
 		    }
-            finally
-            {
-                try
-                {
-                    this.connection.close();
-                }
-                catch(SQLException sq)
-                {
-                    logger.info("Connection could not be closed in: delete method");
-                }
-            }
     }
+    /**
+     * Deletes a record from the database based on the specified model instance.
+     * <p>
+     * This method calls the {@link #delete(Integer)} method with the ID of the provided model instance.
+     * It attempts to delete the record associated with the instance. If an SQL exception occurs,
+     * it logs the error and returns false.
+     * </p>
+     *
+     * @param e the model instance to be deleted; must not be null
+     * @return true if the record was successfully deleted; false if the deletion failed
+     */
 	public boolean delete(E e) 
 	{
         try
         {
 		    return this.delete(e.getId());
         }
-        catch(SQLException sq)
+        catch(Exception sq)
         {
             logger.info("Unagel to delelet model of type: "+e.getClass()+" : for id = "+e.getId());
             return false;
@@ -466,7 +458,7 @@ public class CRUD<E extends Model> {
 	}
     private boolean createTable() {
         try {
-            this.connection = DriverManager.getConnection(DB_URL);
+            this.connection = SQLITEConnection.getConnection(DB_URL);
             E dummyInstance = clazz.getDeclaredConstructor().newInstance();
             Field[] fields = this.clazz.getDeclaredFields();
             StringBuilder sql = new StringBuilder("CREATE TABLE " + tableName + " ( id INTEGER PRIMARY KEY AUTOINCREMENT,");
@@ -476,10 +468,8 @@ public class CRUD<E extends Model> {
                 if (field.getName().equals("id")) {
                     continue; // skip the id field, it's already the primary key
                 }
-                System.out.println("Executing for field: "+field);
                 // Get the corresponding getter method for the field
                 Method getter = clazz.getMethod(getterMethod(field.getName()));
-                System.out.println("Getter Name: "+getter);
                 if (field.getType().equals(Integer.class)) { // Integer fields
                     Integer defaultValue = (Integer) getter.invoke(dummyInstance);
                     sql.append(" ").append(field.getName()).append(" INTEGER");
@@ -508,7 +498,6 @@ public class CRUD<E extends Model> {
                     // Unsupported type
                     logger.warning("Field type not supported: " + field.getName() + " in class " + clazz.getName());
                 }
-                System.out.println("Executed for filed: "+field);
             }
     
             // Remove the last trailing comma
@@ -531,17 +520,6 @@ public class CRUD<E extends Model> {
         } catch (ReflectiveOperationException e) {
             logger.severe("Reflection error in creating table: " + this.tableName + " " + e);
         }
-        finally
-        {
-            try
-            {
-                this.connection.close();
-
-            }
-            catch(SQLException sq){
-                logger.info("SQL exception in createtable during closing coneetion");
-            }
-        }
     
         return false; // Failed to create the table
     }
@@ -551,7 +529,7 @@ public class CRUD<E extends Model> {
 	        
 	        try 
             {
-                this.connection = DriverManager.getConnection(DB_URL);
+                this.connection = SQLITEConnection.getConnection(DB_URL);
                 Statement statement = connection.createStatement();
 	             ResultSet resultSet = statement.executeQuery(sql);
 	            return resultSet.next(); // Returns true if the table exists
@@ -559,16 +537,5 @@ public class CRUD<E extends Model> {
 	            e.printStackTrace();
 	            return false;
 	        }
-            finally
-            {
-                try
-                {
-                    this.connection.close();
-                }
-                catch(SQLException sq)
-                {
-                    logger.info("does table exist method is unable to close the connection");
-                }
-            }
 	    }
 }
