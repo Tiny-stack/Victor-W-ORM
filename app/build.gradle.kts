@@ -7,6 +7,7 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     application
 }
 
@@ -34,7 +35,17 @@ java {
 }
 tasks.jar {
     // Set the name of the jar file
-    archiveFileName.set("${rootProject.name}-.jar")
+     manifest {
+        attributes["Main-Class"] = "org.example.User"
+    }
+    archiveFileName.set("${rootProject.name}.jar")
+}
+
+tasks.shadowJar {
+    archiveFileName.set("${rootProject.name}-all.jar")
+    manifest {
+        attributes["Main-Class"] = "org.example.User"
+    }
 }
 
 

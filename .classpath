@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path=".gradle/8.10.2/dependencies-accessors/91e51b11932b7893b6411faaf331058278bf7916/sources"/>
+	<classpathentry kind="src" path="app/src/main/java"/>
+	<classpathentry kind="src" path="app/src/test/java"/>
+	<classpathentry kind="lib" path="app/build/libs/W-ORM-.jar"/>
+	<classpathentry kind="lib" path="gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="output" path=".gradle/8.10.2/dependencies-accessors/91e51b11932b7893b6411faaf331058278bf7916/classes"/>
+</classpath>

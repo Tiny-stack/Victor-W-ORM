@@ -2,7 +2,6 @@ package org.worm;
 
 
 import java.sql.SQLException;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -46,26 +45,33 @@ public class CRUD<E extends Model> {
     }
 	public CRUD(Class<E> clazz) throws SQLException {
         this.clazz = clazz;
-   
+        logger.info("clazz: "+clazz);
         try {
             // Create an instance of the class to invoke getTableName()
             E instance = clazz.getDeclaredConstructor().newInstance();
+            System.out.println("instance: "+instance);
             Method me = clazz.getMethod("getTableName");
+            System.out.println("me: "+me);
             String table = (String) me.invoke(instance); // Invoke method on instance, not clazz
 
             // Use the table name from the model
             this.tableName = table;
 
             if (!doesTableExist(tableName)) {
+                    System.out.println("Table: "+table+"Dosed not exist trytin to create it");
                     boolean created = createTable();
                     if(!created)
+                    {
+                        System.out.println("Unable to create table: "+created);
                         throw new SQLException("Unable to create the table "+this.tableName);
+                    }
             }
             
             System.out.println("Connection stablished");
 
             
         } catch (Exception e) {
+            logger.info("Exception occured was: "+e);
             throw new RuntimeException("Error initializing CRUD", e);
         }
     }
